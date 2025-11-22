@@ -1,24 +1,31 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { Stack } from "expo-router";
+import { useEffect, useState } from "react";
+import { initDB } from "../src/db/notesDb";
+import { View, Text } from "react-native";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [dbReady, setDbReady] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      await initDB();  // wait for SQLite
+      setDbReady(true);
+    })();
+  }, []);
+
+  if (!dbReady) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Text>Loading database...</Text>
+      </View>
+    );
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="index" options={{ title: "Home" }} />
+      <Stack.Screen name="all-notes" options={{ title: "All Notes" }} />
+      <Stack.Screen name="edit-note" options={{ title: "Edit Note" }} />
+    </Stack>
   );
 }
