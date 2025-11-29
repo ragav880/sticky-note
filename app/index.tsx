@@ -28,10 +28,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Today's Notes</Text>
+      <Text style={styles.heading}>Today's Tasks</Text>
 
       {notes.length === 0 && (
-        <Text style={styles.noNotes}>No notes for today 😴</Text>
+        <Text style={styles.noNotes}>chandu yadav goddali 😴</Text>
       )}
 
       <FlatList

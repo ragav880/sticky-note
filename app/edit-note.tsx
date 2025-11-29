@@ -8,10 +8,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  Button,
-  Platform,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   addNote,
@@ -21,7 +18,8 @@ import {
 } from "../src/db/notesDb";
 import { Ionicons } from "@expo/vector-icons";
 
-const COLORS = ["#fef3c7", "#bfdbfe", "#fecaca", "#bbf7d0", "#fde68a"];
+const COLORS = ["#fef3c7", "#bfdbfe", "#fecaca", "#bbf7d0", "#fde68a"]; 
+// yellow, blue, red, green, orange
 
 export default function EditNoteScreen() {
   const router = useRouter();
@@ -30,11 +28,11 @@ export default function EditNoteScreen() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [date, setDate] = useState("");
+  const [reminderEnabled] = useState(false); // not used yet, just kept
   const [color, setColor] = useState("#fef3c7");
 
+  // 👉 Existing notes open in VIEW mode; new note opens in EDIT mode
   const [isEditing, setIsEditing] = useState(id ? false : true);
-
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const isScrolling = useRef(false);
 
@@ -65,7 +63,7 @@ export default function EditNoteScreen() {
         title,
         content,
         date,
-        reminder_enabled: 0,
+        reminder_enabled: reminderEnabled ? 1 : 0,
         reminder_id: null,
         color,
       });
@@ -74,41 +72,33 @@ export default function EditNoteScreen() {
         title,
         content,
         date,
-        reminder_enabled: 0,
+        reminder_enabled: reminderEnabled ? 1 : 0,
         reminder_id: null,
         color,
       });
     }
 
-    setIsEditing(false);
-  }
-
-  function onDateSelected(event, selectedDate) {
-    setShowDatePicker(false);
-
-    if (!selectedDate) return;
-
-    const yyyy = selectedDate.getFullYear();
-    const mm = String(selectedDate.getMonth() + 1).padStart(2, "0");
-    const dd = String(selectedDate.getDate()).padStart(2, "0");
-
-    setDate(`${yyyy}-${mm}-${dd}`);
+    setIsEditing(false); // back to view mode
   }
 
   async function onDelete() {
     if (!id) return;
 
-    Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          await deleteNote(id);
-          router.back();
+    Alert.alert(
+      "Delete Note",
+      "Are you sure you want to delete this note?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await deleteNote(id);
+            router.back();
+          },
         },
-      },
-    ]);
+      ]
+    );
   }
 
   return (
@@ -118,12 +108,14 @@ export default function EditNoteScreen() {
         <Text style={styles.heading}>{isEditing ? "Edit Note" : "Note"}</Text>
 
         <View style={{ flexDirection: "row", gap: 10 }}>
+          {/* Save only in edit mode */}
           {isEditing && (
             <TouchableOpacity onPress={onSave}>
               <Ionicons name="checkmark-outline" size={32} color="green" />
             </TouchableOpacity>
           )}
 
+          {/* Delete icon (only for existing notes) */}
           {id && (
             <TouchableOpacity onPress={onDelete}>
               <Ionicons name="trash-outline" size={32} color="red" />
@@ -132,7 +124,7 @@ export default function EditNoteScreen() {
         </View>
       </View>
 
-      {/* COLOR PICKER */}
+      {/* COLOR PICKER (only edit mode) */}
       {isEditing && (
         <View style={styles.colorRow}>
           {COLORS.map((c) => (
@@ -152,19 +144,24 @@ export default function EditNoteScreen() {
         </View>
       )}
 
-      {/* MAIN NOTE AREA */}
+      {/* MAIN NOTE BACKGROUND */}
       <ScrollView
         style={[styles.noteContainer, { backgroundColor: color }]}
+        showsVerticalScrollIndicator={false}
         onScrollBeginDrag={() => (isScrolling.current = true)}
-        onScrollEndDrag={() =>
-          setTimeout(() => (isScrolling.current = false), 150)
-        }
+        onScrollEndDrag={() => {
+          setTimeout(() => {
+            isScrolling.current = false;
+          }, 150);
+        }}
       >
         {/* VIEW MODE */}
         {!isEditing && (
           <Pressable
             onPress={() => {
-              if (!isScrolling.current) setIsEditing(true);
+              if (!isScrolling.current) {
+                setIsEditing(true);
+              }
             }}
           >
             <Text style={styles.titleView}>{title}</Text>
@@ -191,32 +188,12 @@ export default function EditNoteScreen() {
               onChangeText={setContent}
             />
 
-            {/* DATE INPUT + ICON */}
-            <View style={styles.dateRow}>
-              <TextInput
-                style={[styles.input, { flex: 1 }]}
-                placeholder="Date (YYYY-MM-DD)"
-                value={date}
-                onChangeText={setDate}
-              />
-
-              <TouchableOpacity
-                style={styles.calendarButton}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Ionicons name="calendar-outline" size={28} color="#333" />
-              </TouchableOpacity>
-            </View>
-
-            {/* DATE PICKER */}
-            {showDatePicker && (
-              <DateTimePicker
-                value={date ? new Date(date) : new Date()}
-                mode="date"
-                display="default"
-                onChange={onDateSelected}
-              />
-            )}
+            <TextInput
+              style={styles.input}
+              placeholder="Date (YYYY-MM-DD)"
+              value={date}
+              onChangeText={setDate}
+            />
           </View>
         )}
       </ScrollView>
@@ -268,13 +245,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 12,
   },
-
   contentView: {
     fontSize: 18,
     marginBottom: 20,
     lineHeight: 26,
   },
-
   dateView: {
     marginTop: 15,
     fontSize: 16,
@@ -289,18 +264,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 15,
     backgroundColor: "#ffffffaa",
-  },
-
-  dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-
-  calendarButton: {
-    marginLeft: 10,
-    padding: 8,
-    borderRadius: 10,
-    backgroundColor: "#ddd",
   },
 });

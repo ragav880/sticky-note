@@ -3,15 +3,30 @@
     "name": "my-app",
     "slug": "my-app",
     "version": "1.0.0",
+
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/921223a5-f962-4fce-a994-56aab797c8ea"
+    },
+
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+
     "ios": {
       "supportsTablet": true
     },
+
     "android": {
+      "package": "com.memu880.myapp",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -19,13 +34,15 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.memu880.myapp"
+      "predictiveBackGestureEnabled": false
     },
+
     "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png",
+      "disabled": true
     },
+
     "plugins": [
       "expo-router",
       [
@@ -35,23 +52,25 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+          "dark": { "backgroundColor": "#000000" }
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-updates"
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
+
     "extra": {
       "router": {},
       "eas": {
         "projectId": "921223a5-f962-4fce-a994-56aab797c8ea"
       }
     },
+
     "owner": "memu880"
   }
 }

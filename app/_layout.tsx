@@ -1,14 +1,14 @@
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
-import { initDB } from "../src/db/notesDb";
 import { View, Text } from "react-native";
+import { initDB } from "../src/db/notesDb";
 
 export default function RootLayout() {
   const [dbReady, setDbReady] = useState(false);
 
   useEffect(() => {
     (async () => {
-      await initDB();  // wait for SQLite
+      await initDB(); // wait for SQLite
       setDbReady(true);
     })();
   }, []);
